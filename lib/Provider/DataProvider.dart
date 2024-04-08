@@ -1,9 +1,10 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:imperointerview/Model/ApiModal.dart';
+
+import '../Controller/ApiController.dart';
 
 class DataProvider extends ChangeNotifier {
-  List<Category> category = [];
+  List category = [];
+  List subCategory = [];
 
   bool _isLoading = false;
 
@@ -13,32 +14,34 @@ class DataProvider extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
-  // Future<void> loadCategory() async {
-  //   isLoading = true;
-  //   final (cat, status) = await ApiController.fetchDataFromApi(categoryId: 0);
-  //   isLoading = false;
-  //   if (status) {
-  //     category.add(cat);
-  //     notifyListeners();
-  //   }
-  //   notifyListeners();
-  // }
+  Future<void> loadCategory() async {
+    isLoading = true;
+    final (cat, status) = await ApiController.fetchDataFromApi(categoryId: 0);
+    isLoading = false;
+    if (status) {
+      category = cat;
+      notifyListeners();
+    }
+    notifyListeners();
+  }
 
-  Future<void> fetchData() async {
-    final response = await Dio().post(
-        'http://esptiles.imperoserver.in/api/API/Product/DashBoard',
-        data: {
-          "CategoryId": 0,
-          "DeviceManufacturer": "Google",
-          "DeviceModel": "Android SDK built for x86",
-          "DeviceToken": "",
-          "PageIndex": 1
-        });
-    if (response.statusCode == 200) {
-      final data = ApiModel.fromJson(response.data);
-      category = data.result!.category!;
-    } else {
-      print("error while fetching api");
+  Future<void> loadSubCategory({
+    required int categoryId,
+  }) async {
+    isLoading = true;
+    final (cat, status) = await ApiController.fetchDataFromApi(
+      categoryId: categoryId,
+    );
+    isLoading = false;
+
+    if (status) {
+      if (cat.isEmpty) {
+        return;
+      }
+      if ((cat[0] as Map).containsKey("SubCategories")) {
+        subCategory = cat[0]['SubCategories'];
+        notifyListeners();
+      }
     }
   }
 }

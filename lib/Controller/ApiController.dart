@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 class ApiController {
@@ -14,6 +17,7 @@ class ApiController {
           "PageIndex": page
         },
       );
+      log(json.encode(res.data));
       return ((res.data['Result']['Category'] ?? []) as List, true);
     } on DioException catch (dioError) {
       return ([], false);
